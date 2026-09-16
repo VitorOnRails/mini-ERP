@@ -1,0 +1,29 @@
+# === Sistema operacional ===
+Thumbs.db
+Desktop.ini
+.DS_Store
+
+# === Editores / IDEs ===
+.vs/
+*.user
+
+# === Delphi (Fase 2 — artefatos de compilação, não versionar) ===
+*.exe
+*.dll
+*.dcu
+*.local
+*.identcache
+*.projdata
+*.dsk
+__history/
+__recovery/
+Win32/
+Win64/
+Debug/
+Release/
+
+# === PHP (Fase 3, se usar Composer) ===
+/web/api/vendor/
+
+# === Logs ===
+*.log
