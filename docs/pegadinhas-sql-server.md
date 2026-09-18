@@ -34,6 +34,7 @@ Regra de ouro: **não é pra decorar — é pra reconhecer o cheiro do problema 
 | "Coluna inválida" logo depois de criá-la no mesmo lote | O lote é **compilado inteiro antes de rodar**; a coluna nova ainda não existe na compilação | Separar com **`GO`** entre criar e usar (só quando há dependência) |
 | Query rodou no banco errado (`master`) | Roda no **banco ativo** da conexão; rodar uma *seleção* executa só o texto selecionado | `USE miniERP;` ou trocar o banco ativo; conferir a barra de baixo |
 | `CREATE TABLE` de tabela que já existe dá erro | O SQL Server se recusa a duplicar | É inofensivo (não cria cópia); num script re-rodável, usar `IF NOT EXISTS` ou não recriar |
+| Editei o `.sql` mas o banco não mudou | O arquivo ≠ o objeto no banco; salvar não aplica | **Executar** o script (`CREATE OR ALTER`) pra aplicar — como recompilar |
 
 ## Procedures e convenções
 
@@ -41,6 +42,10 @@ Regra de ouro: **não é pra decorar — é pra reconhecer o cheiro do problema 
 |---|---|---|
 | Não prefixe suas procedures com `sp_` | `sp_` é reservado pras procedures de **sistema**; o SQL Server procura primeiro no banco de sistema (custo bobo + risco de colisão) | Use `usp_` (user) ou nome simples: `usp_RegistrarVenda` |
 | `EXEC nome_da_proc @param...` chama uma procedure | O mesmo `EXEC` vale pras embutidas (`sp_rename`) e pras suas | — |
+| `BEGIN ... END` só com comentários dá "erro perto de END" | O bloco precisa de **pelo menos 1 statement real**; comentário não conta | Pôr um placeholder (`RETURN;` / `PRINT '...'`) enquanto está vazio |
+| `CREATE OR ALTER PROCEDURE` = cria ou atualiza | Versão re-rodável do CREATE; edita a procedure sem dropar | Usar sempre em scripts de procedure |
+| "Incorrect syntax near 'THROW'" | O `THROW` exige que o comando **anterior** termine com `;` | Na dúvida, escreva `;THROW num, 'msg', 1;` (com `;` na frente) |
+| `IF ... BEGIN` sem `END` | Todo `BEGIN` precisa do seu `END` (conte os pares) | Fechar cada bloco; conferir nº de BEGIN = nº de END |
 
 ## Comportamentos que assustam mas são normais
 

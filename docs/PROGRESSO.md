@@ -31,9 +31,16 @@ O schema agora vive em `database/`, em arquivos `.sql` re-rodáveis (rebuild tes
 - `04_seeds.sql` — 6 produtos de teste
 - Rebuild completo = rodar `00 → 01 → 02 → 03 → 04` (fixa `USE miniERP;` ou banco ativo antes).
 
-## 🎯 Próximo passo (retomar aqui) — Fase B
+## ✅ Fase B (parcial) — `usp_RegistrarVenda` v1 pronta e testada
 
-**A joia: `sp_RegistrarVenda`** → stored procedure que registra venda + itens e dá baixa no estoque numa **transação** (TRY/CATCH, rollback). Recebe os itens (provável TVP/table-valued parameter). Depois: views `vw_VendasDoDia` e `vw_ProdutosMaisVendidos`, e a consulta de alerta de estoque baixo (`estoque < estoque_minimo`).
+`database/05_usp_Registrar_venda.sql` — procedure completa: lê preço → valida estoque (THROW) → insere venda → captura id (SCOPE_IDENTITY) → insere item (preço congelado) → baixa estoque → tudo em transação (BEGIN TRY / BEGIN TRAN / COMMIT / CATCH com ROLLBACK + THROW). Testada: venda válida cria tudo certo; estoque insuficiente faz rollback (nada persiste). É a **v1 (1 item por venda)**.
+
+## 🎯 Próximo passo (retomar aqui)
+
+- **v2 da procedure:** aceitar **vários itens** numa venda (via TVP — table-valued parameter). Requer criar um *user-defined table type*.
+- **Views:** `vw_VendasDoDia` (total do dia, nº vendas, ticket médio) e `vw_ProdutosMaisVendidos`.
+- **Alerta de estoque baixo:** consulta `WHERE estoque < estoque_minimo`.
+- (Obs: o banco tem 1 venda de teste — útil pra testar as views. Rebuild `00→04` zera se quiser.)
 
 ---
 
