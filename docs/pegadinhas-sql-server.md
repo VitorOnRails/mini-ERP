@@ -46,6 +46,7 @@ Regra de ouro: **não é pra decorar — é pra reconhecer o cheiro do problema 
 | `CREATE OR ALTER PROCEDURE` = cria ou atualiza | Versão re-rodável do CREATE; edita a procedure sem dropar | Usar sempre em scripts de procedure |
 | "Incorrect syntax near 'THROW'" | O `THROW` exige que o comando **anterior** termine com `;` | Na dúvida, escreva `;THROW num, 'msg', 1;` (com `;` na frente) |
 | `IF ... BEGIN` sem `END` | Todo `BEGIN` precisa do seu `END` (conte os pares) | Fechar cada bloco; conferir nº de BEGIN = nº de END |
+| `SCOPE_IDENTITY()` inline num `INSERT...SELECT` p/ tabela com IDENTITY | A função pode retornar o id da PRÓPRIA tabela sendo inserida, não o que você queria | **Capturar em variável** (`SET @id = SCOPE_IDENTITY()`) logo após o insert de origem, e usar a variável |
 
 ## Comportamentos que assustam mas são normais
 

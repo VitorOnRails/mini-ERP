@@ -31,16 +31,21 @@ O schema agora vive em `database/`, em arquivos `.sql` re-rodáveis (rebuild tes
 - `04_seeds.sql` — 6 produtos de teste
 - Rebuild completo = rodar `00 → 01 → 02 → 03 → 04` (fixa `USE miniERP;` ou banco ativo antes).
 
-## ✅ Fase B (parcial) — `usp_RegistrarVenda` v1 pronta e testada
+## ✅ Fase B — `usp_RegistrarVenda` v2 (multi-item) pronta e testada
 
-`database/05_usp_Registrar_venda.sql` — procedure completa: lê preço → valida estoque (THROW) → insere venda → captura id (SCOPE_IDENTITY) → insere item (preço congelado) → baixa estoque → tudo em transação (BEGIN TRY / BEGIN TRAN / COMMIT / CATCH com ROLLBACK + THROW). Testada: venda válida cria tudo certo; estoque insuficiente faz rollback (nada persiste). É a **v1 (1 item por venda)**.
+v2 aceita **vários itens** numa venda via **TVP** (`tipoItemVenda`, em `database/05_tipo_de_item_venda.sql`). Lógica **set-based**: valida estoque da lista (`IF EXISTS` + JOIN), insere venda com total agregado (`INSERT..SELECT` + `SUM`), captura id, insere todos os itens (`INSERT..SELECT`, preço congelado via JOIN), baixa estoque de todos (`UPDATE..FROM..JOIN`) — tudo transacional. Testada: venda de 2 itens ok; item insuficiente faz **rollback da venda inteira** (nem o item válido baixa). Limitações a revisitar (robustez): produto duplicado em @itens e id_produto inexistente (INNER JOIN descarta).
+
+<details><summary>histórico: v1 (1 item)</summary>
+
+`database/05_usp_Registrar_venda.sql` (v1) — lê preço → valida estoque → insere venda → captura id → insere item → baixa estoque, em transação. Substituída pela v2 (multi-item) no mesmo arquivo.
+</details>
 
 ## 🎯 Próximo passo (retomar aqui)
 
-- **v2 da procedure:** aceitar **vários itens** numa venda (via TVP — table-valued parameter). Requer criar um *user-defined table type*.
 - **Views:** `vw_VendasDoDia` (total do dia, nº vendas, ticket médio) e `vw_ProdutosMaisVendidos`.
 - **Alerta de estoque baixo:** consulta `WHERE estoque < estoque_minimo`.
-- (Obs: o banco tem 1 venda de teste — útil pra testar as views. Rebuild `00→04` zera se quiser.)
+- **(opcional) Robustez da procedure:** produto duplicado em @itens; id_produto inexistente.
+- (Obs: banco tem vendas de teste — útil pras views. Rebuild `00→04` zera. Considerar renomear a procedure pra `06_` já que o tipo é `05_`.)
 
 ---
 
