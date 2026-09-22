@@ -3,7 +3,30 @@ CREATE OR ALTER PROCEDURE usp_RegistrarVenda
     @forma_pagamento NVARCHAR(30)
 AS
 BEGIN
--- 7. commit ou rollback no caso de erros.
+
+    IF EXISTS (
+        SELECT 1
+        FROM @itens i
+           WHERE NOT EXISTS (
+               SELECT 1
+               FROM produtos p
+               WHERE p.id = i.id_produto
+           )
+    )
+    BEGIN
+        ; THROW 50000, 'Um ou mais produtos selecionados não existem.', 1;
+    END
+
+    IF EXISTS (
+        SELECT 1 
+        FROM @itens
+        GROUP BY id_produto
+        HAVING COUNT(*) > 1
+    )
+    BEGIN
+        ; THROW 50000, 'Produto duplicado nos itens da venda.', 1;
+    END
+
     BEGIN TRY
         BEGIN TRANSACTION;
     IF EXISTS (

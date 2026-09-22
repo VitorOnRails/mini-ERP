@@ -49,11 +49,13 @@ v2 aceita **vários itens** numa venda via **TVP** (`tipoItemVenda`, em `databas
 
 **Fase 1 (banco SQL Server) concluída:** schema + procedure transacional multi-item + 3 views/alerta. É o núcleo da vaga.
 
+## ✅ Robustez da procedure — feita e testada 🏁
+
+`usp_RegistrarVenda` ganhou 2 validações pre-flight (antes do BEGIN TRY): produto inexistente (`NOT EXISTS`) e produto duplicado (`GROUP BY` + `HAVING COUNT(*) > 1`). Testado: ambos barram com THROW e nada é gravado; venda válida segue OK. **Fase 1 (banco SQL Server) 100% concluída, com robustez.**
+
 ## 🎯 Próximo passo (retomar aqui) — Fase 2 (Delphi)
 
 App desktop (PDV do balcão) em **Delphi + FireDAC** — o "maior gap" do plano. Precisa do **Delphi Community Edition** instalado. Telas: cadastro de produtos (CRUD), tela de venda/PDV (chama `usp_RegistrarVenda`), consulta de estoque.
-
-(Opcional antes: robustez da procedure — produto duplicado em @itens, id_produto inexistente.)
 
 ---
 
