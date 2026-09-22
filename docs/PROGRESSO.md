@@ -40,12 +40,20 @@ v2 aceita **vários itens** numa venda via **TVP** (`tipoItemVenda`, em `databas
 `database/05_usp_Registrar_venda.sql` (v1) — lê preço → valida estoque → insere venda → captura id → insere item → baixa estoque, em transação. Substituída pela v2 (multi-item) no mesmo arquivo.
 </details>
 
-## 🎯 Próximo passo (retomar aqui)
+## ✅ Views e alerta — Fase 1 (banco) COMPLETA 🏁
 
-- **Views:** `vw_VendasDoDia` (total do dia, nº vendas, ticket médio) e `vw_ProdutosMaisVendidos`.
-- **Alerta de estoque baixo:** consulta `WHERE estoque < estoque_minimo`.
-- **(opcional) Robustez da procedure:** produto duplicado em @itens; id_produto inexistente.
-- (Obs: banco tem vendas de teste — útil pras views. Rebuild `00→04` zera. Considerar renomear a procedure pra `06_` já que o tipo é `05_`.)
+- `07_vw_Vendas_dia.sql` — **vw_VendasDia**: total/nº/ticket médio do dia (CAST no ticket p/ 2 casas; filtro `CAST(... AS DATE)`).
+- `08_vw_Produtos_mais_vendidos.sql` — **vw_ProdutosMaisVendidos**: ranking por produto (JOIN + GROUP BY; sem ORDER BY — é do consumidor).
+- `09_vw_Alerta_estoque.sql` — **vw_AlertaEstoque**: produtos com `estoque < estoque_minimo`.
+- Todas testadas e funcionando.
+
+**Fase 1 (banco SQL Server) concluída:** schema + procedure transacional multi-item + 3 views/alerta. É o núcleo da vaga.
+
+## 🎯 Próximo passo (retomar aqui) — Fase 2 (Delphi)
+
+App desktop (PDV do balcão) em **Delphi + FireDAC** — o "maior gap" do plano. Precisa do **Delphi Community Edition** instalado. Telas: cadastro de produtos (CRUD), tela de venda/PDV (chama `usp_RegistrarVenda`), consulta de estoque.
+
+(Opcional antes: robustez da procedure — produto duplicado em @itens, id_produto inexistente.)
 
 ---
 
