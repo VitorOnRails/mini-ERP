@@ -1,8 +1,6 @@
 # Progresso — Mini-ERP de Balcão
 
-Registro do que já foi construído e o próximo passo. Atualizado em **2026-09-10**.
-
-> Método: eu escrevo o SQL, o Claude só **guia e revisa** (nada de código pronto pra copiar).
+Registro do que já foi construído e o próximo passo. Atualizado em **2026-09-23**.
 
 ---
 
@@ -60,9 +58,9 @@ App desktop (PDV do balcão) em Delphi. Projeto em `delphi/` (`miniERP.dpr`, `uP
 - **Delphi 13 Community Edition** instalado (só Delphi + Windows).
 - ⚠️ **A CE não tem o driver MSSQL no FireDAC** → conexão feita via **ADO / dbGo** (`TADOConnection` + OLE DB Driver for SQL Server). ADO = a via "legada", alinhada com a vaga.
 - **Conexão OK:** localhost, Windows Auth, banco miniERP, `TrustServerCertificate=True`, `LoginPrompt=False`. Connection string enxuta: `Provider=MSOLEDBSQL19.1;Data Source=localhost;Initial Catalog=miniERP;Integrated Security=SSPI;Trust Server Certificate=True`.
-- **✅ Tela de produtos LISTANDO:** trio montado — `conMiniERP` (TADOConnection) → `qryProdutos` (TADOQuery, `SELECT * FROM produtos`) → `dsProdutos` (TDataSource) → `grdProdutos` (TDBGrid). Colunas ajustadas via Columns Editor (larguras + títulos amigáveis: ID/Nome/Preço/Estoque/Estoque mínimo). **App compila e RODA (F9)** mostrando os 6 produtos. 🎉
+- **✅ Tela de produtos LISTANDO:** trio montado — `conMiniERP` (TADOConnection) → `qryProdutos` (TADOQuery, `SELECT * FROM produtos`) → `dsProdutos` (TDataSource) → `grdProdutos` (TDBGrid). Colunas ajustadas via Columns Editor (larguras + títulos amigáveis: ID/Nome/Preço/Estoque/Estoque mínimo). **App compila e RODA (F9)** mostrando os 6 produtos.
 
-**Retomar aqui:** (1) commitar esse marco; (2) **CRUD** de produtos (hoje só lista — falta criar/editar/excluir, via grid + formulário); depois PDV (chama `usp_RegistrarVenda` — provável `TADOStoredProc`) e consulta de estoque. (Renomear form/componentes = sempre pela propriedade Name no Object Inspector, nunca editando código.)
+**Retomar aqui:** (1) **CRUD** de produtos (hoje só lista — falta criar/editar/excluir, via grid + formulário); depois PDV (chama `usp_RegistrarVenda` — provável `TADOStoredProc`) e consulta de estoque. (Renomear form/componentes = sempre pela propriedade Name no Object Inspector, nunca editando código.)
 
 ---
 
@@ -80,7 +78,7 @@ App desktop (PDV do balcão) em Delphi. Projeto em `delphi/` (`miniERP.dpr`, `uP
 
 ## 🗺️ Visão geral do projeto (as 4 camadas)
 Todas leem o mesmo `localhost`:
-1. **SQL Server** — fonte única da verdade. ← estamos aqui (tabelas ok, falta procedure + views)
-2. **Delphi** (desktop, FireDAC) — PDV do balcão, lê **e escreve**.
+1. **SQL Server** — fonte única da verdade. (_concluído_)
+2. **Delphi** (desktop, ADO / dbGo) — PDV do balcão, lê **e escreve**. ← estamos aqui (primeiro executável criado)
 3. **PHP** (API, PDO) — só leitura, devolve JSON.
 4. **jQuery** (painel web) — consome o PHP via `$.ajax`.
