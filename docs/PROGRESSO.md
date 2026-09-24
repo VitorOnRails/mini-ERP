@@ -53,9 +53,16 @@ v2 aceita **vários itens** numa venda via **TVP** (`tipoItemVenda`, em `databas
 
 `usp_RegistrarVenda` ganhou 2 validações pre-flight (antes do BEGIN TRY): produto inexistente (`NOT EXISTS`) e produto duplicado (`GROUP BY` + `HAVING COUNT(*) > 1`). Testado: ambos barram com THROW e nada é gravado; venda válida segue OK. **Fase 1 (banco SQL Server) 100% concluída, com robustez.**
 
-## 🎯 Próximo passo (retomar aqui) — Fase 2 (Delphi)
+## 🚧 Fase 2 (Delphi) — EM ANDAMENTO
 
-App desktop (PDV do balcão) em **Delphi + FireDAC** — o "maior gap" do plano. Precisa do **Delphi Community Edition** instalado. Telas: cadastro de produtos (CRUD), tela de venda/PDV (chama `usp_RegistrarVenda`), consulta de estoque.
+App desktop (PDV do balcão) em Delphi. Projeto em `delphi/` (`miniERP.dpr`, `uProdutos.pas/.dfm`).
+
+- **Delphi 13 Community Edition** instalado (só Delphi + Windows).
+- ⚠️ **A CE não tem o driver MSSQL no FireDAC** → conexão feita via **ADO / dbGo** (`TADOConnection` + OLE DB Driver for SQL Server). ADO = a via "legada", alinhada com a vaga.
+- **Conexão OK:** localhost, Windows Auth, banco miniERP, `TrustServerCertificate=True`, `LoginPrompt=False`. Connection string enxuta: `Provider=MSOLEDBSQL19.1;Data Source=localhost;Initial Catalog=miniERP;Integrated Security=SSPI;Trust Server Certificate=True`.
+- **✅ Tela de produtos LISTANDO:** trio montado — `conMiniERP` (TADOConnection) → `qryProdutos` (TADOQuery, `SELECT * FROM produtos`) → `dsProdutos` (TDataSource) → `grdProdutos` (TDBGrid). Colunas ajustadas via Columns Editor (larguras + títulos amigáveis: ID/Nome/Preço/Estoque/Estoque mínimo). **App compila e RODA (F9)** mostrando os 6 produtos. 🎉
+
+**Retomar aqui:** (1) commitar esse marco; (2) **CRUD** de produtos (hoje só lista — falta criar/editar/excluir, via grid + formulário); depois PDV (chama `usp_RegistrarVenda` — provável `TADOStoredProc`) e consulta de estoque. (Renomear form/componentes = sempre pela propriedade Name no Object Inspector, nunca editando código.)
 
 ---
 
