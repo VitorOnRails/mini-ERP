@@ -1,6 +1,6 @@
 # Progresso — Mini-ERP de Balcão
 
-Registro do que já foi construído e o próximo passo. Atualizado em **2026-09-23**.
+Registro do que já foi construído e o próximo passo. Atualizado em **2026-09-24**.
 
 ---
 
@@ -59,8 +59,11 @@ App desktop (PDV do balcão) em Delphi. Projeto em `delphi/` (`miniERP.dpr`, `uP
 - ⚠️ **A CE não tem o driver MSSQL no FireDAC** → conexão feita via **ADO / dbGo** (`TADOConnection` + OLE DB Driver for SQL Server). ADO = a via "legada", alinhada com a vaga.
 - **Conexão OK:** localhost, Windows Auth, banco miniERP, `TrustServerCertificate=True`, `LoginPrompt=False`. Connection string enxuta: `Provider=MSOLEDBSQL19.1;Data Source=localhost;Initial Catalog=miniERP;Integrated Security=SSPI;Trust Server Certificate=True`.
 - **✅ Tela de produtos LISTANDO:** trio montado — `conMiniERP` (TADOConnection) → `qryProdutos` (TADOQuery, `SELECT * FROM produtos`) → `dsProdutos` (TDataSource) → `grdProdutos` (TDBGrid). Colunas ajustadas via Columns Editor (larguras + títulos amigáveis: ID/Nome/Preço/Estoque/Estoque mínimo). **App compila e RODA (F9)** mostrando os 6 produtos.
+- **✅ CRUD na grade:** adicionei um `TDBNavigator` ligado ao `dsProdutos` e habilitei `dgEditing` no grid — dá pra editar e excluir direto na grade, com o ADO gerando o UPDATE/DELETE sozinho. Testei criar/editar/excluir vendo persistir no banco. (Aprendi na prática por que editar num cursor vivo é frágil: o servidor aplica DEFAULT/IDENTITY que o cliente não conhece → deriva → erro "linha não pode ser localizada"; conserto = Cancel + Refresh.)
+- **✅ Formulário de cadastro (INSERT parametrizado):** montei um painel com campos (`edtNome`/`edtPreco`/`edtEstoque`/`edtEstoqueMinimo`) + botão Salvar. Um 2º `TADOQuery` (`qryInsertProdutos`) carrega o `INSERT INTO produtos (...) VALUES (:nome, :preco, :estoque, :estoque_minimo)`. No `btnSalvarClick` preencho cada parâmetro (`ParamByName('x').Value`, convertendo o `.Text` com `StrToFloat`/`StrToInt`), disparo com `ExecSQL` e atualizo a lista com `Requery`. **Ler e escrever = queries separados** (`qryProdutos` lê e alimenta o grid; `qryInsertProdutos` só escreve).
+- **Conceitos fixados aqui:** parâmetros no Delphi (`:x` na plaquinha do SQL, `ParamByName('x')` no código, sem o `:`); `SELECT` se abre (`Open`) e traz linhas, `INSERT` se executa (`ExecSQL`) e não traz nada (dobradinha GET/POST); a propriedade `SQL` é a *instrução* do query; e `procedure` do Pascal (subrotina que não retorna, vs `function`) **não** é a mesma coisa que *stored procedure* do SQL — palavra igual, mundos diferentes.
 
-**Retomar aqui:** (1) **CRUD** de produtos (hoje só lista — falta criar/editar/excluir, via grid + formulário); depois PDV (chama `usp_RegistrarVenda` — provável `TADOStoredProc`) e consulta de estoque. (Renomear form/componentes = sempre pela propriedade Name no Object Inspector, nunca editando código.)
+**Retomar aqui:** o **PDV** — vai *chamar* a `usp_RegistrarVenda` a partir do Delphi, preenchendo os parâmetros (`@forma_pagamento` + a lista de itens via TVP). É onde os parâmetros do Delphi encontram os da procedure. Depois: consulta de estoque, e polimentos no cadastro (limpar os campos após salvar; validar entrada inválida com `TryStrToFloat` / `try-except`). (Renomear form/componentes = sempre pela propriedade Name no Object Inspector, nunca editando código.)
 
 ---
 
