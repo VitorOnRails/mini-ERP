@@ -1,7 +1,7 @@
-object Form1: TForm1
+object frmProdutos: TfrmProdutos
   Left = 0
   Top = 0
-  Caption = 'Form1'
+  Caption = 'frmProdutos'
   ClientHeight = 749
   ClientWidth = 1044
   Color = clBtnFace
@@ -79,14 +79,14 @@ object Form1: TForm1
       Left = 1
       Top = -1
       Width = 36
-      Height = 187
+      Height = 15
       Align = alCustom
       Caption = 'Nome:'
     end
     object Label2: TLabel
       Left = 1
       Top = 23
-      Width = 40
+      Width = 33
       Height = 15
       Align = alCustom
       Caption = 'Pre'#231'o:'
@@ -110,7 +110,7 @@ object Form1: TForm1
       Left = 43
       Top = 0
       Width = 110
-      Height = 17
+      Height = 23
       Alignment = taCenter
       TabOrder = 0
     end
@@ -118,7 +118,7 @@ object Form1: TForm1
       Left = 43
       Top = 23
       Width = 113
-      Height = 18
+      Height = 23
       Alignment = taCenter
       TabOrder = 1
     end
@@ -126,7 +126,7 @@ object Form1: TForm1
       Left = 52
       Top = 47
       Width = 113
-      Height = 18
+      Height = 23
       Alignment = taCenter
       TabOrder = 2
     end
@@ -134,7 +134,7 @@ object Form1: TForm1
       Left = 96
       Top = 71
       Width = 113
-      Height = 18
+      Height = 23
       Alignment = taCenter
       TabOrder = 3
     end

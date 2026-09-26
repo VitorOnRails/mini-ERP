@@ -8,7 +8,7 @@ uses
   Vcl.DBGrids, Vcl.ExtCtrls, Vcl.Buttons, Vcl.DBCtrls, Vcl.StdCtrls;
 
 type
-  TForm1 = class(TForm)
+  TfrmProdutos = class(TForm)
     conMiniERP: TADOConnection;
     qryProdutos: TADOQuery;
     dsProdutos: TDataSource;
@@ -33,13 +33,13 @@ type
   end;
 
 var
-  Form1: TForm1;
+  frmProdutos: TfrmProdutos;
 
 implementation
 
 {$R *.dfm}
 
-procedure TForm1.btnSalvarClick(Sender: TObject);
+procedure TfrmProdutos.btnSalvarClick(Sender: TObject);
 
 begin
   qryInsertProdutos.Parameters.ParamByName('nome').Value := edtNome.Text;
