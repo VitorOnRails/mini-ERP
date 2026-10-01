@@ -47,6 +47,7 @@ Regra de ouro: **não é pra decorar — é pra reconhecer o cheiro do problema 
 | "Incorrect syntax near 'THROW'" | O `THROW` exige que o comando **anterior** termine com `;` | Na dúvida, escreva `;THROW num, 'msg', 1;` (com `;` na frente) |
 | `IF ... BEGIN` sem `END` | Todo `BEGIN` precisa do seu `END` (conte os pares) | Fechar cada bloco; conferir nº de BEGIN = nº de END |
 | `SCOPE_IDENTITY()` inline num `INSERT...SELECT` p/ tabela com IDENTITY | A função pode retornar o id da PRÓPRIA tabela sendo inserida, não o que você queria | **Capturar em variável** (`SET @id = SCOPE_IDENTITY()`) logo após o insert de origem, e usar a variável |
+| Procedure chamada do **Delphi (ADO)** "dá sucesso" mesmo quando faz `THROW`/erro | Cada INSERT/UPDATE manda uma mensagem "N linhas afetadas"; o ADO trata isso como resultado intermediário, o `ExecSQL` volta na primeira e **não levanta** o erro que vem depois → o `try/except` nunca dispara | `SET NOCOUNT ON;` logo após o `AS BEGIN` — silencia as mensagens e o erro chega limpo no cliente, aí o `try/except` captura |
 
 ## Comportamentos que assustam mas são normais
 

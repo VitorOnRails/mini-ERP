@@ -1,6 +1,6 @@
 # Progresso — Mini-ERP de Balcão
 
-Registro do que já foi construído e o próximo passo. Atualizado em **2026-09-24**.
+Registro do que já foi construído e o próximo passo. Atualizado em **2026-09-30**.
 
 ---
 
@@ -63,7 +63,19 @@ App desktop (PDV do balcão) em Delphi. Projeto em `delphi/` (`miniERP.dpr`, `uP
 - **✅ Formulário de cadastro (INSERT parametrizado):** montei um painel com campos (`edtNome`/`edtPreco`/`edtEstoque`/`edtEstoqueMinimo`) + botão Salvar. Um 2º `TADOQuery` (`qryInsertProdutos`) carrega o `INSERT INTO produtos (...) VALUES (:nome, :preco, :estoque, :estoque_minimo)`. No `btnSalvarClick` preencho cada parâmetro (`ParamByName('x').Value`, convertendo o `.Text` com `StrToFloat`/`StrToInt`), disparo com `ExecSQL` e atualizo a lista com `Requery`. **Ler e escrever = queries separados** (`qryProdutos` lê e alimenta o grid; `qryInsertProdutos` só escreve).
 - **Conceitos fixados aqui:** parâmetros no Delphi (`:x` na plaquinha do SQL, `ParamByName('x')` no código, sem o `:`); `SELECT` se abre (`Open`) e traz linhas, `INSERT` se executa (`ExecSQL`) e não traz nada (dobradinha GET/POST); a propriedade `SQL` é a *instrução* do query; e `procedure` do Pascal (subrotina que não retorna, vs `function`) **não** é a mesma coisa que *stored procedure* do SQL — palavra igual, mundos diferentes.
 
-**Retomar aqui:** o **PDV** — vai *chamar* a `usp_RegistrarVenda` a partir do Delphi, preenchendo os parâmetros (`@forma_pagamento` + a lista de itens via TVP). É onde os parâmetros do Delphi encontram os da procedure. Depois: consulta de estoque, e polimentos no cadastro (limpar os campos após salvar; validar entrada inválida com `TryStrToFloat` / `try-except`). (Renomear form/componentes = sempre pela propriedade Name no Object Inspector, nunca editando código.)
+- **✅ Layout + navegação:** passe de higiene no `frmProdutos` (painel-base `pnlMain` com `Align=alClient` embrulhando cadastro+grid+navigator; labels renomeados). Renomeei os forms pro padrão `frm` (`frmProdutos`/`frmVendas`). Botão **"Nova Venda"** abre o PDV (`frmVendas.Show`; `uses uVendas` na `implementation` pra evitar referência circular).
+- **✅ PDV (tela de venda) FUNCIONAL:** `frmVendas` com combo de produtos (enchido do banco no `FormCreate` via loop de dataset), **carrinho num `TStringGrid`** (grid em memória, não data-aware — o carrinho só existe no cliente até finalizar), botão **Adicionar** (acha o produto com `Locate`, calcula subtotal, escreve as células; grid cresce sob demanda), **total** somado com um `for` sobre a coluna Subtotal, e `TRadioGroup` de forma de pagamento. O **Finalizar** monta um JSON dos itens e chama a procedure.
+- **✅ Adapter JSON→TVP (a grande sacada):** descobri que o **ADO/dbGo não passa TVP** (limitação do ADO clássico). Em vez de jogar fora a `usp_RegistrarVenda` (que usa TVP), criei um **adapter** `usp_RegistrarVenda_JSON` (`database/10_...`) que recebe os itens como JSON (`NVARCHAR`), desmonta com **`OPENJSON`** num TVP, e **delega** pra procedure original (`EXEC`). O cérebro fica intacto; a casquinha traduz (padrão *adapter*).
+- **✅ Robustez do lado cliente:** o Finalizar trata erro com `try/except` (mostra o erro real do servidor em vez de mentir "sucesso") + guardas de validação (carrinho vazio / sem pagamento, com `Exit`). Testado nos 4 caminhos (vazio / sem pagamento / válida grava+limpa+baixa estoque / inválida mostra erro + preserva carrinho). ⚠️ Pegadinha resolvida: sem `SET NOCOUNT ON` na procedure o erro não chegava no ADO (anotada na colinha).
+- **Conceitos novos desta parte:** `TStringGrid` (`Cells[col,linha]`, `RowCount`/`FixedRows`), **contagem vs índice** (0-based, `RowCount-1`), variável local não nasce em 0 (inicializar acumulador), `for`, concatenação de string (montar JSON), `Locate` (acha linha no dataset), tipos `Integer`/`Currency`, conversão número↔string, `try/except`, `Exit`, `OPENJSON` (casa por nome/chave, não posição).
+
+**Retomar aqui (o PDV funciona, mas falta polir):**
+1. **Refatorar** o `btnFinalizarClick` (extrair `MontarJson`, `LimparCarrinho`) — serve também de revisão pra entender tudo do início ao fim.
+2. **Cosméticos:** total pra `R$ 0,00` (hoje "R$0"); limpar `edtQtd`/combo após adicionar.
+3. **Validação no `Adicionar`** (produto selecionado? qtd número > 0?) — hoje só o Finalizar tem guardas.
+4. **Produto duplicado** no carrinho (a procedure rejeita duplicados — somar na linha existente ou impedir).
+5. **Remover item** do carrinho.
+6. Tela de **consulta de estoque** (usa `vw_AlertaEstoque`) — fecha a Fase 2. Depois: polimentos no cadastro (limpar campos após salvar; `TryStrToFloat`). (Renomear = sempre pela propriedade Name no Object Inspector.)
 
 ---
 
