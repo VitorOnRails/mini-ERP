@@ -12,20 +12,22 @@ type
     conMiniERP: TADOConnection;
     qryProdutos: TADOQuery;
     dsProdutos: TDataSource;
-    grdProdutos: TDBGrid;
-    DBNavigator1: TDBNavigator;
-    Panel1: TPanel;
-    Label1: TLabel;
+    pnlMain: TPanel;
+    lblNome: TLabel;
     edtNome: TEdit;
-    Label2: TLabel;
+    lblPreco: TLabel;
     edtPreco: TEdit;
-    Label3: TLabel;
+    lblEstoque: TLabel;
     edtEstoque: TEdit;
-    Label4: TLabel;
+    lblEstoque_min: TLabel;
     edtEstoqueMinimo: TEdit;
     btnSalvar: TButton;
     qryInsertProdutos: TADOQuery;
+    grdProdutos: TDBGrid;
+    DBNavigator1: TDBNavigator;
+    btnNovaVenda: TButton;
     procedure btnSalvarClick(Sender: TObject);
+    procedure btnNovaVendaClick(Sender: TObject);
   private
     { Private declarations }
   public
@@ -37,7 +39,13 @@ var
 
 implementation
 
+  uses uVendas;
 {$R *.dfm}
+
+procedure TfrmProdutos.btnNovaVendaClick(Sender: TObject);
+begin
+frmVendas.Show;
+end;
 
 procedure TfrmProdutos.btnSalvarClick(Sender: TObject);
 

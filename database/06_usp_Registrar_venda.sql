@@ -3,6 +3,7 @@ CREATE OR ALTER PROCEDURE usp_RegistrarVenda
     @forma_pagamento NVARCHAR(30)
 AS
 BEGIN
+SET NOCOUNT ON;
 
     IF EXISTS (
         SELECT 1
