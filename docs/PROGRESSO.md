@@ -69,13 +69,14 @@ App desktop (PDV do balcão) em Delphi. Projeto em `delphi/` (`miniERP.dpr`, `uP
 - **✅ Robustez do lado cliente:** o Finalizar trata erro com `try/except` (mostra o erro real do servidor em vez de mentir "sucesso") + guardas de validação (carrinho vazio / sem pagamento, com `Exit`). Testado nos 4 caminhos (vazio / sem pagamento / válida grava+limpa+baixa estoque / inválida mostra erro + preserva carrinho). ⚠️ Pegadinha resolvida: sem `SET NOCOUNT ON` na procedure o erro não chegava no ADO (anotada na colinha).
 - **Conceitos novos desta parte:** `TStringGrid` (`Cells[col,linha]`, `RowCount`/`FixedRows`), **contagem vs índice** (0-based, `RowCount-1`), variável local não nasce em 0 (inicializar acumulador), `for`, concatenação de string (montar JSON), `Locate` (acha linha no dataset), tipos `Integer`/`Currency`, conversão número↔string, `try/except`, `Exit`, `OPENJSON` (casa por nome/chave, não posição).
 
-**Retomar aqui (o PDV funciona, mas falta polir):**
-1. **Refatorar** o `btnFinalizarClick` (extrair `MontarJson`, `LimparCarrinho`) — serve também de revisão pra entender tudo do início ao fim.
-2. **Cosméticos:** total pra `R$ 0,00` (hoje "R$0"); limpar `edtQtd`/combo após adicionar.
-3. **Validação no `Adicionar`** (produto selecionado? qtd número > 0?) — hoje só o Finalizar tem guardas.
-4. **Produto duplicado** no carrinho (a procedure rejeita duplicados — somar na linha existente ou impedir).
-5. **Remover item** do carrinho.
-6. Tela de **consulta de estoque** (usa `vw_AlertaEstoque`) — fecha a Fase 2. Depois: polimentos no cadastro (limpar campos após salvar; `TryStrToFloat`). (Renomear = sempre pela propriedade Name no Object Inspector.)
+- **✅ Refatoração feita:** extraí 3 métodos auxiliares do PDV — `MontarJSON` (function, devolve o JSON via `Result`), `CarrinhoLimpar` e `AtualizarTotal` (procedures). Os handlers ficaram enxutos, lendo como um resumo. Aprendi `function` (retorna, pega-se com `:=`) vs `procedure` (só executa), `Result`, e escopo de variável local (cada método declara o que usa).
+- **✅ Produto duplicado = somar:** o `Adicionar` agora procura o produto no carrinho (loop com sentinela `linhaExistente := -1`); se já existe, **soma a qtd na linha** e recalcula o subtotal; senão, cria linha nova (`if/else`). Testado. Assim o carrinho nunca manda duplicado pra procedure.
+
+**Retomar aqui (o PDV funciona, mas ainda falta polir):**
+1. **Validação no `Adicionar`** (produto selecionado? qtd número > 0?) — hoje só o Finalizar tem guardas; o Adicionar ainda crasha com campo vazio.
+2. **Cosmético:** limpar `edtQtd`/combo após adicionar.
+3. **Remover item** do carrinho.
+4. Tela de **consulta de estoque** (usa `vw_AlertaEstoque`) — fecha a Fase 2. Depois: polimentos no cadastro (limpar campos após salvar; `TryStrToFloat`). (Renomear = sempre pela propriedade Name no Object Inspector.)
 
 ---
 
