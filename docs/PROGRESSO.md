@@ -45,18 +45,18 @@ v2 aceita **vários itens** numa venda via **TVP** (`tipoItemVenda`, em `databas
 - `09_vw_Alerta_estoque.sql` — **vw_AlertaEstoque**: produtos com `estoque < estoque_minimo`.
 - Todas testadas e funcionando.
 
-**Fase 1 (banco SQL Server) concluída:** schema + procedure transacional multi-item + 3 views/alerta. É o núcleo da vaga.
+**Fase 1 (banco SQL Server) concluída:** schema + procedure transacional multi-item + 3 views/alerta.
 
 ## ✅ Robustez da procedure — feita e testada 🏁
 
 `usp_RegistrarVenda` ganhou 2 validações pre-flight (antes do BEGIN TRY): produto inexistente (`NOT EXISTS`) e produto duplicado (`GROUP BY` + `HAVING COUNT(*) > 1`). Testado: ambos barram com THROW e nada é gravado; venda válida segue OK. **Fase 1 (banco SQL Server) 100% concluída, com robustez.**
 
-## 🚧 Fase 2 (Delphi) — EM ANDAMENTO
+## 🚧 Fase 2 (Delphi) — FUNCIONAL
 
 App desktop (PDV do balcão) em Delphi. Projeto em `delphi/` (`miniERP.dpr`, `uProdutos.pas/.dfm`).
 
 - **Delphi 13 Community Edition** instalado (só Delphi + Windows).
-- ⚠️ **A CE não tem o driver MSSQL no FireDAC** → conexão feita via **ADO / dbGo** (`TADOConnection` + OLE DB Driver for SQL Server). ADO = a via "legada", alinhada com a vaga.
+- ⚠️ **A CE não tem o driver MSSQL no FireDAC** → conexão feita via **ADO / dbGo** (`TADOConnection` + OLE DB Driver for SQL Server). ADO = a via "legada".
 - **Conexão OK:** localhost, Windows Auth, banco miniERP, `TrustServerCertificate=True`, `LoginPrompt=False`. Connection string enxuta: `Provider=MSOLEDBSQL19.1;Data Source=localhost;Initial Catalog=miniERP;Integrated Security=SSPI;Trust Server Certificate=True`.
 - **✅ Tela de produtos LISTANDO:** trio montado — `conMiniERP` (TADOConnection) → `qryProdutos` (TADOQuery, `SELECT * FROM produtos`) → `dsProdutos` (TDataSource) → `grdProdutos` (TDBGrid). Colunas ajustadas via Columns Editor (larguras + títulos amigáveis: ID/Nome/Preço/Estoque/Estoque mínimo). **App compila e RODA (F9)** mostrando os 6 produtos.
 - **✅ CRUD na grade:** adicionei um `TDBNavigator` ligado ao `dsProdutos` e habilitei `dgEditing` no grid — dá pra editar e excluir direto na grade, com o ADO gerando o UPDATE/DELETE sozinho. Testei criar/editar/excluir vendo persistir no banco. (Aprendi na prática por que editar num cursor vivo é frágil: o servidor aplica DEFAULT/IDENTITY que o cliente não conhece → deriva → erro "linha não pode ser localizada"; conserto = Cancel + Refresh.)
@@ -72,11 +72,12 @@ App desktop (PDV do balcão) em Delphi. Projeto em `delphi/` (`miniERP.dpr`, `uP
 - **✅ Refatoração feita:** extraí 3 métodos auxiliares do PDV — `MontarJSON` (function, devolve o JSON via `Result`), `CarrinhoLimpar` e `AtualizarTotal` (procedures). Os handlers ficaram enxutos, lendo como um resumo. Aprendi `function` (retorna, pega-se com `:=`) vs `procedure` (só executa), `Result`, e escopo de variável local (cada método declara o que usa).
 - **✅ Produto duplicado = somar:** o `Adicionar` agora procura o produto no carrinho (loop com sentinela `linhaExistente := -1`); se já existe, **soma a qtd na linha** e recalcula o subtotal; senão, cria linha nova (`if/else`). Testado. Assim o carrinho nunca manda duplicado pra procedure.
 
-**Retomar aqui (o PDV funciona, mas ainda falta polir):**
-1. **Validação no `Adicionar`** (produto selecionado? qtd número > 0?) — hoje só o Finalizar tem guardas; o Adicionar ainda crasha com campo vazio.
-2. **Cosmético:** limpar `edtQtd`/combo após adicionar.
-3. **Remover item** do carrinho.
-4. Tela de **consulta de estoque** (usa `vw_AlertaEstoque`) — fecha a Fase 2. Depois: polimentos no cadastro (limpar campos após salvar; `TryStrToFloat`). (Renomear = sempre pela propriedade Name no Object Inspector.)
+- **✅ Polimentos do PDV:** validação no `Adicionar` (produto via `ItemIndex=-1`; qtd via `TryStrToInt` + `>0`, sem crashar); limpa `edtQtd`/combo após adicionar; **remover item** selecionado (empurra as linhas de baixo pra cima + encolhe `RowCount`; se era o único, `CarrinhoLimpar`); botão **Cancelar venda** (reusa `CarrinhoLimpar`); total inicializado no `FormCreate`; mensagens honestas.
+- **✅ Consulta de estoque:** tela nova `frmEstoque` (`uEstoque`) com grid **data-aware** (`TDBGrid` lendo `SELECT * FROM vw_AlertaEstoque` — produtos abaixo do mínimo), aberta por um botão "Consultar estoque" no frmProdutos. Reusou o padrão da listagem de produtos (contraste: data-aware porque vem do banco, vs TStringGrid do carrinho que é em memória).
+
+**Fase 2 funcional:** app desktop inteiro de pé — produtos (listar/CRUD/cadastro), PDV (venda ponta a ponta via adapter JSON→procedure), consulta de estoque. **Falta o polimento visual.**
+
+**Retomar aqui:** **passe estético** — aplicar um **VCL Style** (reskin do app todo: Project → Options → Appearance → Custom Styles) + refinar o layout das telas. Isso **fecha a Fase 2**. **Depois: Fase 3 — PHP (API só-leitura)** (endpoints que leem o banco via PDO e devolvem JSON), e Fase 4 (jQuery) consumindo o PHP. (Pendência menor: polimentos no cadastro — limpar campos após salvar, `TryStrToFloat`.)
 
 ---
 
@@ -95,6 +96,6 @@ App desktop (PDV do balcão) em Delphi. Projeto em `delphi/` (`miniERP.dpr`, `uP
 ## 🗺️ Visão geral do projeto (as 4 camadas)
 Todas leem o mesmo `localhost`:
 1. **SQL Server** — fonte única da verdade. (_concluído_)
-2. **Delphi** (desktop, ADO / dbGo) — PDV do balcão, lê **e escreve**. ← estamos aqui (primeiro executável criado)
+2. **Delphi** (desktop, ADO / dbGo) — PDV do balcão, lê **e escreve**. (_funcional; falta o polimento visual_) ← estamos aqui
 3. **PHP** (API, PDO) — só leitura, devolve JSON.
 4. **jQuery** (painel web) — consome o PHP via `$.ajax`.
