@@ -20,8 +20,6 @@ object frmProdutos: TfrmProdutos
     Align = alClient
     Alignment = taLeftJustify
     TabOrder = 0
-    ExplicitLeft = 8
-    ExplicitTop = -2
     object lblNome: TLabel
       Left = 0
       Top = 19
@@ -141,8 +139,8 @@ object frmProdutos: TfrmProdutos
         end>
     end
     object DBNavigator1: TDBNavigator
-      Left = 488
-      Top = 207
+      Left = 304
+      Top = 191
       Width = 270
       Height = 49
       DataSource = dsProdutos
@@ -153,9 +151,18 @@ object frmProdutos: TfrmProdutos
       Top = 11
       Width = 110
       Height = 33
-      Caption = 'Nova Venda'
+      Caption = 'Nova venda'
       TabOrder = 7
       OnClick = btnNovaVendaClick
+    end
+    object btnConsultaEstoque: TButton
+      Left = 888
+      Top = 11
+      Width = 110
+      Height = 33
+      Caption = 'Consultar estoque'
+      TabOrder = 8
+      OnClick = btnConsultaEstoqueClick
     end
   end
   object conMiniERP: TADOConnection

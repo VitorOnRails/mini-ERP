@@ -26,8 +26,10 @@ type
     grdProdutos: TDBGrid;
     DBNavigator1: TDBNavigator;
     btnNovaVenda: TButton;
+    btnConsultaEstoque: TButton;
     procedure btnSalvarClick(Sender: TObject);
     procedure btnNovaVendaClick(Sender: TObject);
+    procedure btnConsultaEstoqueClick(Sender: TObject);
   private
     { Private declarations }
   public
@@ -39,8 +41,13 @@ var
 
 implementation
 
-  uses uVendas;
+  uses uVendas, uEstoque;
 {$R *.dfm}
+
+procedure TfrmProdutos.btnConsultaEstoqueClick(Sender: TObject);
+begin
+frmEstoque.Show;
+end;
 
 procedure TfrmProdutos.btnNovaVendaClick(Sender: TObject);
 begin

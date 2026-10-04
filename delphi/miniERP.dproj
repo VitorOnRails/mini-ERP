@@ -133,6 +133,10 @@
             <Form>frmVendas</Form>
             <FormType>dfm</FormType>
         </DCCReference>
+        <DCCReference Include="uEstoque.pas">
+            <Form>frmEstoque</Form>
+            <FormType>dfm</FormType>
+        </DCCReference>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>

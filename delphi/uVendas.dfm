@@ -12,7 +12,7 @@ object frmVendas: TfrmVendas
   Font.Style = []
   OnCreate = FormCreate
   TextHeight = 15
-  object Panel1: TPanel
+  object pnlMain: TPanel
     Left = 0
     Top = 0
     Width = 784
@@ -62,10 +62,10 @@ object frmVendas: TfrmVendas
     object cboProduto: TComboBox
       Left = 52
       Top = 16
-      Width = 141
+      Width = 125
       Height = 23
       TabOrder = 0
-      TextHint = 'Escolha seus produtos'
+      TextHint = 'Escolha o produto'
     end
     object edtQtd: TEdit
       Left = 52
@@ -113,6 +113,24 @@ object frmVendas: TfrmVendas
       TabOrder = 5
       OnClick = btnFinalizarClick
     end
+    object btnCancelarVenda: TButton
+      Left = 616
+      Top = 15
+      Width = 100
+      Height = 25
+      Caption = 'Cancelar venda'
+      TabOrder = 6
+      OnClick = btnCancelarVendaClick
+    end
+    object btnRemoverProduto: TButton
+      Left = 494
+      Top = 15
+      Width = 105
+      Height = 25
+      Caption = 'Remover produto'
+      TabOrder = 7
+      OnClick = btnRemoverProdutoClick
+    end
   end
   object conMiniERP: TADOConnection
     Connected = True
@@ -121,11 +139,19 @@ object frmVendas: TfrmVendas
       'niERP;Integrated Security=SSPI;Trust Server Certificate=True'
     LoginPrompt = False
     Provider = 'MSOLEDBSQL19.1'
-    Left = 608
-    Top = 168
+    Left = 600
+    Top = 392
   end
   object qryProdutos: TADOQuery
-    Connection = conMiniERP
+    ConnectionString = 
+      'Provider=MSOLEDBSQL19.1;Integrated Security=SSPI;Initial Catalog' +
+      '=miniERP;Data Source=localhost;Use Procedure for Prepare=1;Auto ' +
+      'Translate=True;Packet Size=4096;Workstation ID=DESKTOP-OG5E8NA;U' +
+      'se Encryption for Data=Mandatory;Tag with column collation when ' +
+      'possible=False;MARS Connection=False;DataTypeCompatibility=0;Tru' +
+      'st Server Certificate=True;Application Intent=READWRITE;MultiSub' +
+      'netFailover=False;Use FMTONLY=False;TransparentNetworkIPResoluti' +
+      'on=True;Connect Retry Count=1;Connect Retry Interval=10;'
     Parameters = <>
     SQL.Strings = (
       'SELECT id, nome, preco FROM produtos ORDER BY nome')

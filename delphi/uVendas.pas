@@ -9,7 +9,7 @@ uses
 
 type
   TfrmVendas = class(TForm)
-    Panel1: TPanel;
+    pnlMain: TPanel;
     cboProduto: TComboBox;
     lblProdutos: TLabel;
     lblQtd: TLabel;
@@ -22,9 +22,13 @@ type
     rgPagamento: TRadioGroup;
     btnFinalizar: TButton;
     qryFinalizarVenda: TADOQuery;
+    btnCancelarVenda: TButton;
+    btnRemoverProduto: TButton;
     procedure FormCreate(Sender: TObject);
     procedure btnAdicionarClick(Sender: TObject);
     procedure btnFinalizarClick(Sender: TObject);
+    procedure btnCancelarVendaClick(Sender: TObject);
+    procedure btnRemoverProdutoClick(Sender: TObject);
   private
     procedure AtualizarTotal;
     procedure CarrinhoLimpar;
@@ -56,7 +60,16 @@ var
   linha, linhaExistente, id, qtd, novoQtd, i: Integer;
   preco, subtotal: Currency;
 begin
-    qtd := StrToInt(edtQtd.Text);
+    if cboProduto.ItemIndex = -1 then
+    begin
+      ShowMessage('Selecione um produto.');
+      Exit;
+    end;
+    if not TryStrToInt(edtQtd.Text, qtd) or (qtd <= 0) then
+    begin
+      ShowMessage('Informe uma quantidade válida.');
+      Exit;
+    end;
     qryProdutos.Locate('nome', cboProduto.Text, []);
     id := qryProdutos.FieldByName('id').AsInteger;
     preco := qryProdutos.FieldByName('preco').AsCurrency;
@@ -86,6 +99,13 @@ begin
     grdCarrinho.Cells[4, linha] := CurrToStr(subtotal);
     end;
     AtualizarTotal;
+    edtQtd.Text := '';
+    cboProduto.ItemIndex := -1;
+end;
+
+procedure TfrmVendas.btnCancelarVendaClick(Sender: TObject);
+begin
+  CarrinhoLimpar;
 end;
 
 function TfrmVendas.MontarJSON: string;
@@ -137,6 +157,27 @@ begin
   end;
 end;
 
+procedure TfrmVendas.btnRemoverProdutoClick(Sender: TObject);
+var
+  i, linhaSelecionada: Integer;
+begin
+  linhaSelecionada := grdCarrinho.Row;
+  if grdCarrinho.Cells[1, linhaSelecionada] = '' then
+  begin
+    ShowMessage('O carrinho está vazio.');
+    Exit;
+  end;
+  if grdCarrinho.RowCount > 2 then
+  begin
+    for i := linhaSelecionada to grdCarrinho.RowCount - 2 do
+      grdCarrinho.Rows[i] := grdCarrinho.Rows[i + 1];
+    grdCarrinho.RowCount := grdCarrinho.RowCount - 1;
+    AtualizarTotal;
+  end
+  else
+    CarrinhoLimpar;
+end;
+
 procedure TfrmVendas.FormCreate(Sender: TObject);
 begin
   grdCarrinho.RowCount := 2;
@@ -145,6 +186,7 @@ begin
   grdCarrinho.Cells[2, 0] := 'Quantidade';
   grdCarrinho.Cells[3, 0] := 'Preço';
   grdCarrinho.Cells[4, 0] := 'Subtotal';
+  lblTotal.Caption := 'Total: R$ 0,00';
   qryProdutos.Open;
   while not qryProdutos.Eof do
   begin
